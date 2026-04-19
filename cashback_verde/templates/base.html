@@ -34,12 +34,30 @@
                         <li class="nav-item">
                             <span class="nav-link">Cashback: R$ {{ user.cashback_balance }}</span>
                         </li>
+                        <li class="nav-item">
+                            <span class="nav-link">Perfil: {{ user.get_role_display }}</span>
+                        </li>
+
+                        {% if user.role == 'seller' %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'product_create' %}">Novo Produto</a>
+                            </li>
+                        {% endif %}
+
+                        <li class="nav-item">
+                            <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link nav-link" style="display:inline; border:none; background:none;">
+                                    Sair
+                                </button>
+                            </form>
+                        </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Entrar</a>
+                            <a class="nav-link" href="{% url 'login' %}">Entrar</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Cadastrar</a>
+                            <a class="nav-link" href="{% url 'register' %}">Cadastrar</a>
                         </li>
                     {% endif %}
                 </ul>
