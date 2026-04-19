@@ -1,13 +1,36 @@
 {% extends 'base.html' %}
 
+{% block title %}Criar conta{% endblock %}
+
 {% block content %}
 <div class="container mt-5" style="max-width: 500px;">
     <h2 class="mb-4">Criar conta</h2>
 
-    <form method="post">
+    <form method="post" action="{% url 'register' %}" novalidate>
         {% csrf_token %}
 
-        {{ form.as_p }}
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        {% for field in form %}
+            <div class="mb-3">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+
+                {% if field.help_text %}
+                    <div class="form-text">{{ field.help_text|safe }}</div>
+                {% endif %}
+
+                {% if field.errors %}
+                    <div class="text-danger small mt-1">
+                        {{ field.errors }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
 
         <button type="submit" class="btn btn-success">Cadastrar</button>
     </form>

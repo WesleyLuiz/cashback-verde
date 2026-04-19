@@ -14,6 +14,7 @@ def register(request):
             login(request, user)
             messages.success(request, 'Conta criada com sucesso. Bem-vindo(a)!')
             return redirect('home')
+        messages.error(request, 'Não foi possível criar a conta. Verifique os campos abaixo.')
 
     else:
         form = CustomUserCreationForm()
