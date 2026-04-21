@@ -9,7 +9,29 @@ from .models import Product
 
 def product_list(request):
     products = Product.objects.all()
-    return render(request, 'products/product_list.html', {'products': products})
+    selected_item_type = request.GET.get('item_type', '')
+    selected_category = request.GET.get('category', '')
+    selected_city = request.GET.get('city', '')
+
+    if selected_item_type:
+        products = products.filter(item_type=selected_item_type)
+
+    if selected_category:
+        products = products.filter(category=selected_category)
+
+    if selected_city:
+        products = products.filter(city=selected_city)
+
+    context = {
+        'products': products,
+        'item_type_choices': Product.ITEM_TYPE_CHOICES,
+        'category_choices': Product.CATEGORY_CHOICES,
+        'city_choices': Product.CITY_CHOICES,
+        'selected_item_type': selected_item_type,
+        'selected_category': selected_category,
+        'selected_city': selected_city,
+    }
+    return render(request, 'products/product_list.html', context)
 
 
 def product_detail(request, pk):

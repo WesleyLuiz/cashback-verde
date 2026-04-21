@@ -1,6 +1,9 @@
 from django.contrib import admin
 from .models import Product
 
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'price', 'is_sustainable')
+    list_display = ('name', 'item_type', 'category', 'city', 'price', 'is_sustainable')
+    list_filter = ('item_type', 'category', 'city', 'is_sustainable')
+    search_fields = ('name', 'description')
