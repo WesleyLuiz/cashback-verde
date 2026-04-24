@@ -1,5 +1,7 @@
-from django.db import models
 from django.conf import settings
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
+from decimal import Decimal
 
 
 class Product(models.Model):
@@ -45,8 +47,19 @@ class Product(models.Model):
     item_type = models.CharField(max_length=20, choices=ITEM_TYPE_CHOICES)
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
     city = models.CharField(max_length=20, choices=CITY_CHOICES)
+    cashback_percentage = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=5,
+        validators=[MinValueValidator(Decimal('0')), MaxValueValidator(Decimal('100'))],
+        help_text='Percentual de cashback aplicado ao anuncio.',
+    )
     is_sustainable = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
+
+    @property
+    def cashback_amount(self):
+        return (self.price * self.cashback_percentage) / Decimal('100')

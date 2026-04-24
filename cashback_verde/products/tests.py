@@ -26,6 +26,7 @@ class ProductViewsTests(TestCase):
             item_type=Product.TYPE_PRODUCT,
             category=Product.CATEGORY_SPORT,
             city=Product.CITY_JOAO_PESSOA,
+            cashback_percentage='8.00',
             is_sustainable=True,
         )
         self.service = Product.objects.create(
@@ -36,6 +37,7 @@ class ProductViewsTests(TestCase):
             item_type=Product.TYPE_SERVICE,
             category=Product.CATEGORY_TOURISM,
             city=Product.CITY_CABEDELO,
+            cashback_percentage='12.00',
             is_sustainable=True,
         )
 
@@ -56,6 +58,7 @@ class ProductViewsTests(TestCase):
             'item_type': Product.TYPE_SERVICE,
             'category': Product.CATEGORY_SPORT,
             'city': Product.CITY_JOAO_PESSOA,
+            'cashback_percentage': '10.00',
             'is_sustainable': 'on',
         })
 
@@ -71,3 +74,9 @@ class ProductViewsTests(TestCase):
 
         self.assertContains(response, 'Passeio ecológico')
         self.assertNotContains(response, 'Bicicleta')
+
+    def test_product_detail_shows_cashback_information(self):
+        response = self.client.get(reverse('product_detail', args=[self.product.pk]))
+
+        self.assertContains(response, '8.00% cashback')
+        self.assertContains(response, 'R$ 96.00')

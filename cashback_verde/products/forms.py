@@ -12,6 +12,7 @@ class ProductForm(forms.ModelForm):
         self.fields['name'].widget.attrs['class'] = 'form-control'
         self.fields['description'].widget.attrs['class'] = 'form-control'
         self.fields['price'].widget.attrs['class'] = 'form-control'
+        self.fields['cashback_percentage'].widget.attrs['class'] = 'form-control'
         self.fields['image'].widget.attrs['class'] = 'form-control'
         self.fields['is_sustainable'].widget.attrs['class'] = 'form-check-input'
 
@@ -25,5 +26,6 @@ class ProductForm(forms.ModelForm):
             'item_type',
             'category',
             'city',
+            'cashback_percentage',
             'is_sustainable',
         ]

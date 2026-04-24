@@ -4,6 +4,14 @@ from .models import Product
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'item_type', 'category', 'city', 'price', 'is_sustainable')
+    list_display = (
+        'name',
+        'item_type',
+        'category',
+        'city',
+        'price',
+        'cashback_percentage',
+        'is_sustainable',
+    )
     list_filter = ('item_type', 'category', 'city', 'is_sustainable')
     search_fields = ('name', 'description')

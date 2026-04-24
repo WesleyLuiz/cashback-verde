@@ -65,6 +65,17 @@
                         {% endif %}
                     </div>
                     <div class="col-md-6 mb-3">
+                        <label for="{{ form.cashback_percentage.id_for_label }}" class="form-label">Cashback (%)</label>
+                        {{ form.cashback_percentage }}
+                        <div class="form-text">Percentual de retorno para o comprador neste anuncio.</div>
+                        {% if form.cashback_percentage.errors %}
+                            <div class="text-danger small mt-1">{{ form.cashback_percentage.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 mb-3">
                         <label for="{{ form.image.id_for_label }}" class="form-label">Imagem</label>
                         {{ form.image }}
                         {% if form.image.errors %}
