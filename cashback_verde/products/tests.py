@@ -75,6 +75,28 @@ class ProductViewsTests(TestCase):
         self.assertContains(response, 'Passeio ecológico')
         self.assertNotContains(response, 'Bicicleta')
 
+    def test_product_list_filters_by_multiple_categories(self):
+        health_service = Product.objects.create(
+            seller=self.seller,
+            name='Yoga ao ar livre',
+            description='Serviço de saúde e bem-estar.',
+            price='80.00',
+            item_type=Product.TYPE_SERVICE,
+            category=Product.CATEGORY_HEALTH,
+            city=Product.CITY_JOAO_PESSOA,
+            cashback_percentage='10.00',
+            is_sustainable=True,
+        )
+
+        response = self.client.get(reverse('product_list'), {
+            'item_type': Product.TYPE_SERVICE,
+            'category': f'{Product.CATEGORY_TOURISM},{Product.CATEGORY_HEALTH}',
+        })
+
+        self.assertContains(response, 'Passeio ecológico')
+        self.assertContains(response, health_service.name)
+        self.assertNotContains(response, 'Bicicleta')
+
     def test_product_detail_shows_cashback_information(self):
         response = self.client.get(reverse('product_detail', args=[self.product.pk]))
 

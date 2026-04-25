@@ -85,11 +85,13 @@
             <!-- Produtos ecológicos -->
             <div class="col-md-3">
                 <div class="category-card">
-                    <img 
-                        src="{% static 'img/categoria-produtos-ecologicos.jpg' %}" 
-                        class="category-img" 
-                        alt="Produtos ecológicos"
-                    >
+                    <a href="{% url 'product_list' %}?item_type=product&category=&city=">
+                        <img 
+                            src="{% static 'img/categoria-produtos-ecologicos.jpg' %}" 
+                            class="category-img" 
+                            alt="Produtos ecológicos"
+                        >
+                    </a>
 
                     <h5>Produtos ecológicos</h5>
                     <p>Itens sustentáveis para o dia a dia.</p>
@@ -99,11 +101,13 @@
             <!-- Bem-estar -->
             <div class="col-md-3">
                 <div class="category-card">
-                    <img 
-                        src="{% static 'img/categoria-bem-estar.jpg' %}" 
-                        class="category-img" 
-                        alt="Bem-estar"
-                    >
+                    <a href="{% url 'product_list' %}?item_type=service&category=sport,tourism,health&city=">
+                        <img 
+                            src="{% static 'img/categoria-bem-estar.jpg' %}" 
+                            class="category-img" 
+                            alt="Bem-estar"
+                        >
+                    </a>
 
                     <h5>Bem-estar</h5>
                     <p>Esportes, saúde e qualidade de vida.</p>
@@ -113,11 +117,13 @@
             <!-- Turismo local -->
             <div class="col-md-3">
                 <div class="category-card">
-                    <img 
-                        src="{% static 'img/categoria-turismo-local.jpg' %}" 
-                        class="category-img" 
-                        alt="Turismo local"
-                    >
+                    <a href="{% url 'product_list' %}?item_type=service&category=tourism&city=">
+                        <img 
+                            src="{% static 'img/categoria-turismo-local.jpg' %}" 
+                            class="category-img" 
+                            alt="Turismo local"
+                        >
+                    </a>
 
                     <h5>Turismo local</h5>
                     <p>Experiências em contato com a natureza.</p>
@@ -127,11 +133,13 @@
             <!-- Projetos conscientes -->
             <div class="col-md-3">
                 <div class="category-card">
-                    <img 
-                        src="{% static 'img/categoria-projetos-conscientes.jpg' %}" 
-                        class="category-img" 
-                        alt="Projetos conscientes"
-                    >
+                    <a href="{% url 'product_list' %}?item_type=service&category=other&city=">
+                        <img 
+                            src="{% static 'img/categoria-projetos-conscientes.jpg' %}" 
+                            class="category-img" 
+                            alt="Projetos conscientes"
+                        >
+                    </a>
 
                     <h5>Projetos conscientes</h5>
                     <p>Iniciativas sustentáveis e sociais.</p>

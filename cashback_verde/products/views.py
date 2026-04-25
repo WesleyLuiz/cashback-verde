@@ -17,7 +17,12 @@ def product_list(request):
         products = products.filter(item_type=selected_item_type)
 
     if selected_category:
-        products = products.filter(category=selected_category)
+        selected_categories = [
+            category.strip()
+            for category in selected_category.split(',')
+            if category.strip()
+        ]
+        products = products.filter(category__in=selected_categories)
 
     if selected_city:
         products = products.filter(city=selected_city)
