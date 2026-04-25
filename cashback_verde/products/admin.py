@@ -11,7 +11,6 @@ class ProductAdmin(admin.ModelAdmin):
         'city',
         'price',
         'cashback_percentage',
-        'is_sustainable',
     )
-    list_filter = ('item_type', 'category', 'city', 'is_sustainable')
+    list_filter = ('item_type', 'category', 'city')
     search_fields = ('name', 'description')

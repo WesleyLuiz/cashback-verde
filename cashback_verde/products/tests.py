@@ -29,7 +29,6 @@ class ProductViewsTests(TestCase):
             category=Product.CATEGORY_SPORT,
             city=Product.CITY_JOAO_PESSOA,
             cashback_percentage='8.00',
-            is_sustainable=True,
         )
         self.service = Product.objects.create(
             seller=self.seller,
@@ -40,7 +39,6 @@ class ProductViewsTests(TestCase):
             category=Product.CATEGORY_TOURISM,
             city=Product.CITY_CABEDELO,
             cashback_percentage='12.00',
-            is_sustainable=True,
         )
 
     def test_only_seller_can_create_product(self):
@@ -61,7 +59,6 @@ class ProductViewsTests(TestCase):
             'category': Product.CATEGORY_SPORT,
             'city': Product.CITY_JOAO_PESSOA,
             'cashback_percentage': '10.00',
-            'is_sustainable': 'on',
         })
 
         self.assertEqual(response.status_code, 302)
@@ -87,7 +84,6 @@ class ProductViewsTests(TestCase):
             category=Product.CATEGORY_HEALTH,
             city=Product.CITY_JOAO_PESSOA,
             cashback_percentage='10.00',
-            is_sustainable=True,
         )
 
         response = self.client.get(reverse('product_list'), {

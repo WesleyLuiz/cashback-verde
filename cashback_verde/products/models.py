@@ -54,7 +54,6 @@ class Product(models.Model):
         validators=[MinValueValidator(Decimal('0')), MaxValueValidator(Decimal('100'))],
         help_text='Percentual de cashback aplicado ao anuncio.',
     )
-    is_sustainable = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

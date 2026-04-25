@@ -34,7 +34,6 @@ class CartFlowTests(TestCase):
             category=Product.CATEGORY_SPORT,
             city=Product.CITY_JOAO_PESSOA,
             cashback_percentage='10.00',
-            is_sustainable=True,
         )
 
     def test_buyer_can_add_item_to_cart(self):

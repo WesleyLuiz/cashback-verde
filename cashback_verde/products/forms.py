@@ -14,7 +14,6 @@ class ProductForm(forms.ModelForm):
         self.fields['price'].widget.attrs['class'] = 'form-control'
         self.fields['cashback_percentage'].widget.attrs['class'] = 'form-control'
         self.fields['image'].widget.attrs['class'] = 'form-control'
-        self.fields['is_sustainable'].widget.attrs['class'] = 'form-check-input'
 
     class Meta:
         model = Product
@@ -27,5 +26,4 @@ class ProductForm(forms.ModelForm):
             'category',
             'city',
             'cashback_percentage',
-            'is_sustainable',
         ]
