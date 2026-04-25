@@ -62,10 +62,28 @@
             <div>
                 <div class="fs-5 fw-bold">Total: R$ {{ cart_total|floatformat:2 }}</div>
                 <div class="text-success">Cashback estimado: R$ {{ cart_cashback_total|floatformat:2 }}</div>
+                <div class="text-muted">Cashback disponível: R$ {{ user.cashback_balance|floatformat:2 }}</div>
             </div>
             <form method="post" action="{% url 'checkout' %}">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-success btn-lg">Finalizar compra</button>
+                {% if cashback_available > 0 %}
+                    <div class="form-check mb-3">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="use_cashback"
+                            id="use_cashback"
+                            checked
+                        >
+                        <label class="form-check-label" for="use_cashback">
+                            Usar R$ {{ cashback_available|floatformat:2 }} de cashback
+                        </label>
+                    </div>
+                    <div class="fw-semibold mb-3">
+                        Total com cashback: R$ {{ cart_total_with_cashback|floatformat:2 }}
+                    </div>
+                {% endif %}
+                <button type="submit" class="btn btn-success btn-lg w-100">Finalizar compra</button>
             </form>
         </div>
     </div>

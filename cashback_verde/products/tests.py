@@ -10,11 +10,13 @@ class ProductViewsTests(TestCase):
         self.user_model = get_user_model()
         self.seller = self.user_model.objects.create_user(
             username='seller',
+            email='seller@example.com',
             password='test1234',
             role='seller',
         )
         self.buyer = self.user_model.objects.create_user(
             username='buyer',
+            email='buyer@example.com',
             password='test1234',
             role='buyer',
         )

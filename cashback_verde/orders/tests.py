@@ -15,11 +15,13 @@ class CartFlowTests(TestCase):
         self.user_model = get_user_model()
         self.buyer = self.user_model.objects.create_user(
             username='buyer',
+            email='buyer@example.com',
             password='test1234',
             role='buyer',
         )
         self.seller = self.user_model.objects.create_user(
             username='seller',
+            email='seller@example.com',
             password='test1234',
             role='seller',
         )
@@ -68,3 +70,24 @@ class CartFlowTests(TestCase):
 
         self.buyer.refresh_from_db()
         self.assertEqual(self.buyer.cashback_balance, Decimal('200.00'))
+
+    def test_checkout_can_use_available_cashback(self):
+        self.buyer.cashback_balance = Decimal('150.00')
+        self.buyer.save(update_fields=['cashback_balance'])
+        self.client.login(username='buyer', password='test1234')
+        session = self.client.session
+        session['cart'] = {str(self.product.pk): 1}
+        session.save()
+
+        response = self.client.post(reverse('checkout'), data={'use_cashback': 'on'})
+
+        self.assertEqual(response.status_code, 302)
+        order = Order.objects.get(user=self.buyer)
+        self.assertEqual(order.cashback_used, Decimal('150.00'))
+        self.assertEqual(order.total, Decimal('850.00'))
+
+        cashback = Cashback.objects.get(order=order)
+        self.assertEqual(cashback.amount, Decimal('100.00'))
+
+        self.buyer.refresh_from_db()
+        self.assertEqual(self.buyer.cashback_balance, Decimal('100.00'))

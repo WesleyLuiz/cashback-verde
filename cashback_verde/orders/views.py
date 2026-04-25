@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -53,6 +54,13 @@ def _require_buyer(user):
     return user.is_authenticated and user.role == 'buyer'
 
 
+def _cashback_discount_for(user, total):
+    if total <= 0:
+        return Decimal('0')
+
+    return min(user.cashback_balance, total)
+
+
 @login_required
 def cart_detail(request):
     if not _require_buyer(request.user):
@@ -60,10 +68,13 @@ def cart_detail(request):
 
     cart = _get_cart(request.session)
     items, total, cashback_total = _build_cart_items(cart)
+    cashback_available = _cashback_discount_for(request.user, total)
     return render(request, 'orders/cart.html', {
         'cart_items': items,
         'cart_total': total,
         'cart_cashback_total': cashback_total,
+        'cashback_available': cashback_available,
+        'cart_total_with_cashback': total - cashback_available,
     })
 
 
@@ -141,17 +152,43 @@ def checkout(request):
         messages.error(request, 'Seu carrinho está vazio.')
         return redirect('cart_detail')
 
-    order = Order.objects.create(user=request.user, total=total)
+    use_cashback = request.POST.get('use_cashback') == 'on'
 
-    for item in cart_items:
-        OrderItem.objects.create(
-            order=order,
-            product=item['product'],
-            quantity=item['quantity'],
-            price=item['product'].price,
+    with transaction.atomic():
+        user = request.user.__class__.objects.select_for_update().get(pk=request.user.pk)
+        cashback_used = _cashback_discount_for(user, total) if use_cashback else Decimal('0')
+        final_total = total - cashback_used
+
+        if cashback_used > 0:
+            user.cashback_balance -= cashback_used
+            user.save(update_fields=['cashback_balance'])
+
+        order = Order.objects.create(
+            user=user,
+            total=final_total,
+            cashback_used=cashback_used,
         )
 
-    generate_cashback(order)
+        for item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                product=item['product'],
+                quantity=item['quantity'],
+                price=item['product'].price,
+            )
+
+        generate_cashback(order)
+
+    request.user.refresh_from_db()
     _save_cart(request.session, {})
-    messages.success(request, 'Compra finalizada com sucesso. O cashback foi creditado na sua conta.')
+    if cashback_used > 0:
+        messages.success(
+            request,
+            (
+                'Compra finalizada com sucesso. '
+                f'R$ {cashback_used:.2f} de cashback foram usados e o novo cashback foi creditado.'
+            ),
+        )
+    else:
+        messages.success(request, 'Compra finalizada com sucesso. O cashback foi creditado na sua conta.')
     return redirect('cart_detail')

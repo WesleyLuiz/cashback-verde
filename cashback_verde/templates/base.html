@@ -41,9 +41,11 @@
                         <li class="nav-item">
                             <span class="nav-link">Olá, {{ user.username }}</span>
                         </li>
-                        <li class="nav-item">
-                            <span class="nav-link">Cashback: R$ {{ user.cashback_balance }}</span>
-                        </li>
+                        {% if user.role == 'buyer' %}
+                            <li class="nav-item">
+                                <span class="nav-link">Cashback: R$ {{ user.cashback_balance }}</span>
+                            </li>
+                        {% endif %}
                         <li class="nav-item">
                             <span class="nav-link">Perfil: {{ user.get_role_display }}</span>
                         </li>
