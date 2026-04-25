@@ -10,6 +10,7 @@ class User(AbstractUser):
         (SELLER, 'Vendedor'),
     ]
 
+    email = models.EmailField('e-mail', unique=True)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default=BUYER)
     cashback_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 

@@ -64,6 +64,7 @@ class CustomUserCreationForm(UserCreationForm):
             'placeholder': 'Escolha um nome de usuário',
             'autocomplete': 'username',
         })
+        self.fields['username'].error_messages['unique'] = 'Já existe uma conta com este nome de usuário.'
         self.fields['email'].widget.attrs.update({
             'class': 'form-control form-control-lg',
             'placeholder': 'Digite seu e-mail',
@@ -95,3 +96,11 @@ class CustomUserCreationForm(UserCreationForm):
                 'Letras, números e os símbolos @/./+/-/_ são permitidos.'
             ),
         }
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+
+        if email and User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError('Já existe uma conta cadastrada com este e-mail.')
+
+        return email
