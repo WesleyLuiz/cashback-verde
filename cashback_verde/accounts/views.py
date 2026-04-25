@@ -1,8 +1,10 @@
 from django.contrib import messages
 from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 
 from .forms import CustomUserCreationForm
+from products.models import Product
 
 
 def register(request):
@@ -21,4 +23,16 @@ def register(request):
 
     return render(request, 'accounts/register.html', {
         'form': form
+    })
+
+
+@login_required
+def profile(request):
+    seller_products = Product.objects.none()
+
+    if request.user.role == 'seller':
+        seller_products = request.user.products.order_by('-created_at')
+
+    return render(request, 'accounts/profile.html', {
+        'seller_products': seller_products,
     })

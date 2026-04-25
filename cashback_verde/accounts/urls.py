@@ -2,7 +2,7 @@ from django.urls import path
 from django.contrib.auth.views import LoginView
 
 from .forms import CustomAuthenticationForm
-from .views import register
+from .views import profile, register
 
 urlpatterns = [
     path(
@@ -14,4 +14,5 @@ urlpatterns = [
         name='login',
     ),
     path('register/', register, name='register'),
+    path('perfil/', profile, name='profile'),
 ]

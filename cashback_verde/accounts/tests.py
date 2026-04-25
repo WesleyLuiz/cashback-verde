@@ -3,6 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from .forms import CustomUserCreationForm
+from products.models import Product
 
 
 class AuthenticationViewsTests(TestCase):
@@ -21,6 +22,49 @@ class AuthenticationViewsTests(TestCase):
         self.assertContains(response, 'Perfil')
         self.assertContains(response, 'form-control form-control-lg')
         self.assertContains(response, 'form-select form-select-lg')
+
+    def test_seller_profile_lists_only_own_products(self):
+        user_model = get_user_model()
+        seller = user_model.objects.create_user(
+            username='seller',
+            email='seller@example.com',
+            password='test1234',
+            role='seller',
+        )
+        other_seller = user_model.objects.create_user(
+            username='other-seller',
+            email='other-seller@example.com',
+            password='test1234',
+            role='seller',
+        )
+        own_product = Product.objects.create(
+            seller=seller,
+            name='Bicicleta',
+            description='Produto para mobilidade urbana.',
+            price='1200.00',
+            item_type=Product.TYPE_PRODUCT,
+            category=Product.CATEGORY_SPORT,
+            city=Product.CITY_JOAO_PESSOA,
+            cashback_percentage='8.00',
+        )
+        Product.objects.create(
+            seller=other_seller,
+            name='Passeio ecológico',
+            description='Serviço local para turismo sustentável.',
+            price='250.00',
+            item_type=Product.TYPE_SERVICE,
+            category=Product.CATEGORY_TOURISM,
+            city=Product.CITY_CABEDELO,
+            cashback_percentage='12.00',
+        )
+        self.client.login(username='seller', password='test1234')
+
+        response = self.client.get(reverse('profile'))
+
+        self.assertContains(response, 'Perfil: Vendedor')
+        self.assertContains(response, own_product.name)
+        self.assertContains(response, reverse('product_update', args=[own_product.pk]))
+        self.assertNotContains(response, 'Passeio ecológico')
 
 
 class CustomUserCreationFormTests(TestCase):
