@@ -61,3 +61,43 @@ def create_product(request):
         form = ProductForm()
 
     return render(request, 'products/create_product.html', {'form': form})
+
+
+@login_required
+def update_product(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+
+    if request.user.role != 'seller' or product.seller != request.user:
+        return HttpResponseForbidden("Apenas o vendedor do anúncio pode editar este produto.")
+
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Produto atualizado com sucesso.')
+            return redirect('product_detail', pk=product.pk)
+    else:
+        form = ProductForm(instance=product)
+
+    return render(request, 'products/create_product.html', {
+        'form': form,
+        'product': product,
+        'page_title': 'Editar anúncio',
+        'page_description': 'Atualize as informações do seu produto ou serviço.',
+        'submit_label': 'Salvar alterações',
+    })
+
+
+@login_required
+def delete_product(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+
+    if request.user.role != 'seller' or product.seller != request.user:
+        return HttpResponseForbidden("Apenas o vendedor do anúncio pode remover este produto.")
+
+    if request.method == 'POST':
+        product.delete()
+        messages.success(request, 'Produto removido com sucesso.')
+        return redirect('product_list')
+
+    return render(request, 'products/delete_product.html', {'product': product})

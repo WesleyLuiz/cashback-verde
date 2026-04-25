@@ -14,6 +14,12 @@ class ProductViewsTests(TestCase):
             password='test1234',
             role='seller',
         )
+        self.other_seller = self.user_model.objects.create_user(
+            username='other-seller',
+            email='other-seller@example.com',
+            password='test1234',
+            role='seller',
+        )
         self.buyer = self.user_model.objects.create_user(
             username='buyer',
             email='buyer@example.com',
@@ -100,3 +106,50 @@ class ProductViewsTests(TestCase):
 
         self.assertContains(response, '8.00% cashback')
         self.assertContains(response, 'R$ 96.00')
+
+    def test_seller_can_update_own_product(self):
+        self.client.login(username='seller', password='test1234')
+
+        response = self.client.post(reverse('product_update', args=[self.product.pk]), data={
+            'name': 'Bicicleta revisada',
+            'description': self.product.description,
+            'price': self.product.price,
+            'item_type': self.product.item_type,
+            'category': self.product.category,
+            'city': self.product.city,
+            'cashback_percentage': self.product.cashback_percentage,
+        })
+
+        self.product.refresh_from_db()
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.product.name, 'Bicicleta revisada')
+
+    def test_buyer_cannot_update_product(self):
+        self.client.login(username='buyer', password='test1234')
+
+        response = self.client.get(reverse('product_update', args=[self.product.pk]))
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_other_seller_cannot_update_product(self):
+        self.client.login(username='other-seller', password='test1234')
+
+        response = self.client.get(reverse('product_update', args=[self.product.pk]))
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_seller_can_delete_own_product(self):
+        self.client.login(username='seller', password='test1234')
+
+        response = self.client.post(reverse('product_delete', args=[self.product.pk]))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Product.objects.filter(pk=self.product.pk).exists())
+
+    def test_other_seller_cannot_delete_product(self):
+        self.client.login(username='other-seller', password='test1234')
+
+        response = self.client.post(reverse('product_delete', args=[self.product.pk]))
+
+        self.assertEqual(response.status_code, 403)
+        self.assertTrue(Product.objects.filter(pk=self.product.pk).exists())

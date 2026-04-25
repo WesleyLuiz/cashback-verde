@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Remover anúncio{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 700px;">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h2 class="text-danger mb-3">Remover anúncio</h2>
+            <p class="mb-4">
+                Tem certeza que deseja remover o anúncio <strong>{{ product.name }}</strong>?
+            </p>
+
+            <form method="post" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Remover</button>
+            </form>
+            <a href="{% url 'product_detail' product.pk %}" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
