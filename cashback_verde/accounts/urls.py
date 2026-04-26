@@ -1,6 +1,18 @@
 from django.urls import path
-from .views import register
+from django.contrib.auth.views import LoginView
+
+from .forms import CustomAuthenticationForm
+from .views import profile, register
 
 urlpatterns = [
+    path(
+        'login/',
+        LoginView.as_view(
+            authentication_form=CustomAuthenticationForm,
+            template_name='registration/login.html',
+        ),
+        name='login',
+    ),
     path('register/', register, name='register'),
+    path('perfil/', profile, name='profile'),
 ]

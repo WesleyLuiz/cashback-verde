@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Meu perfil{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="text-success mb-1">Meu perfil</h2>
+        <p class="text-muted mb-0">Perfil: {{ user.get_role_display }}</p>
+    </div>
+    {% if user.role == 'seller' %}
+        <a href="{% url 'product_create' %}" class="btn btn-success">Novo anúncio</a>
+    {% endif %}
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <span class="text-muted d-block">Usuário</span>
+                <strong>{{ user.username }}</strong>
+            </div>
+            <div class="col-md-4">
+                <span class="text-muted d-block">E-mail</span>
+                <strong>{{ user.email }}</strong>
+            </div>
+            <div class="col-md-4">
+                <span class="text-muted d-block">Perfil</span>
+                <strong>{{ user.get_role_display }}</strong>
+            </div>
+            {% if user.role == 'buyer' %}
+                <div class="col-md-4">
+                    <span class="text-muted d-block">Cashback</span>
+                    <strong class="text-success">R$ {{ user.cashback_balance }}</strong>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if user.role == 'seller' %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="h5 mb-0">Meus produtos e serviços</h3>
+        <span class="text-muted">{{ seller_products|length }} anúncio(s)</span>
+    </div>
+
+    {% if seller_products %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Anúncio</th>
+                        <th>Tipo</th>
+                        <th>Categoria</th>
+                        <th>Cidade</th>
+                        <th>Preço</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in seller_products %}
+                        <tr>
+                            <td>
+                                <strong>{{ product.name }}</strong>
+                                <span class="text-muted d-block small">{{ product.cashback_percentage }}% cashback</span>
+                            </td>
+                            <td>{{ product.get_item_type_display }}</td>
+                            <td>{{ product.get_category_display }}</td>
+                            <td>{{ product.get_city_display }}</td>
+                            <td>R$ {{ product.price }}</td>
+                            <td class="text-end">
+                                <a href="{% url 'product_detail' product.pk %}" class="btn btn-sm btn-outline-secondary">Ver</a>
+                                <a href="{% url 'product_update' product.pk %}" class="btn btn-sm btn-outline-success">Editar</a>
+                                <a href="{% url 'product_delete' product.pk %}" class="btn btn-sm btn-outline-danger">Remover</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            Você ainda não cadastrou produtos ou serviços.
+        </div>
+    {% endif %}
+{% endif %}
+{% endblock %}

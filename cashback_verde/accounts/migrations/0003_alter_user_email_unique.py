@@ -1,0 +1,18 @@
+# Generated manually because Django is not available in the current environment.
+
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('accounts', '0002_user_role'),
+    ]
+
+    operations = [
+        migrations.AlterField(
+            model_name='user',
+            name='email',
+            field=models.EmailField(max_length=254, unique=True, verbose_name='e-mail'),
+        ),
+    ]
