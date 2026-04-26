@@ -104,8 +104,8 @@ class ProductViewsTests(TestCase):
     def test_product_detail_shows_cashback_information(self):
         response = self.client.get(reverse('product_detail', args=[self.product.pk]))
 
-        self.assertContains(response, '8.00% cashback')
-        self.assertContains(response, 'R$ 96.00')
+        self.assertContains(response, '8,00% cashback')
+        self.assertContains(response, 'R$ 96,00')
 
     def test_seller_can_update_own_product(self):
         self.client.login(username='seller', password='test1234')
