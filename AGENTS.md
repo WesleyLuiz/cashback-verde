@@ -1,51 +1,44 @@
 # AGENTS.md
 
-Este arquivo orienta agentes de código que forem trabalhar neste repositório.
+Guia para agentes de codigo que forem trabalhar neste repositorio.
 
 ## Objetivo do projeto
 
-O projeto implementa um marketplace sustentável chamado `Cashback Verde`, desenvolvido em Django, com foco em:
+`Cashback Verde` e um marketplace sustentavel desenvolvido em Django para um projeto de TCC. O sistema diferencia compradores e vendedores, permite cadastro e gerenciamento de anuncios, compra por carrinho e geracao/uso de cashback verde.
 
-- cadastro/autenticação de usuários
-- diferenciação entre compradores e vendedores
-- catálogo de produtos
-- pedidos
-- cashback verde
+## Estrutura do repositorio
 
-## Estrutura real do repositório
+O projeto Django fica dentro de `cashback_verde/`; a raiz contem arquivos de apoio como `BACKLOG.md` e este guia.
 
-O código principal não está na raiz. O app Django fica em `cashback_verde/`.
+Principais caminhos:
 
-Principais áreas:
+- `cashback_verde/manage.py`: ponto de entrada dos comandos Django.
+- `cashback_verde/cashback_verde/`: configuracao do projeto (`settings.py`, `urls.py`, ASGI/WSGI e static local).
+- `cashback_verde/accounts/`: usuario customizado, cadastro, login customizado e perfil.
+- `cashback_verde/products/`: anuncios de produtos/servicos, filtros, CRUD de vendedor e formulario.
+- `cashback_verde/orders/`: carrinho em sessao, checkout, pedidos e itens de pedido.
+- `cashback_verde/cashback/`: registro e servico de credito de cashback.
+- `cashback_verde/core/`: home e rotas centrais.
+- `cashback_verde/templates/`: templates globais e paginas renderizadas no servidor.
+- `cashback_verde/media/`: uploads locais de imagens.
 
-- `cashback_verde/manage.py`: ponto de entrada dos comandos Django
-- `cashback_verde/cashback_verde/`: configuração do projeto (`settings.py`, `urls.py`)
-- `cashback_verde/accounts/`: usuário customizado, cadastro e login
-- `cashback_verde/products/`: catálogo e detalhe de produtos
-- `cashback_verde/orders/`: modelos de pedido
-- `cashback_verde/cashback/`: modelo e serviço de cashback
-- `cashback_verde/core/`: home e rotas centrais
-- `cashback_verde/templates/`: templates compartilhados e de páginas
-- `cashback_verde/media/`: uploads locais
-
-## Stack e dependências
+## Stack
 
 - Python
 - Django `5.2.13`
 - PostgreSQL via `psycopg2-binary`
-- `python-decouple` para variáveis de ambiente
-- Pillow para imagens
-- Bootstrap via CDN nos templates
+- `python-decouple` para variaveis de ambiente
+- Pillow para upload/processamento basico de imagens
+- Bootstrap `5.3.3` via CDN nos templates
 
-Dependências declaradas em `cashback_verde/requirements.txt`.
+Dependencias declaradas em `cashback_verde/requirements.txt`.
 
-## Como rodar localmente
+## Como rodar
 
-Assuma que o diretório de trabalho operacional é `cashback_verde/`.
-
-Comandos comuns:
+Use `cashback_verde/` como diretorio operacional para comandos Django.
 
 ```bash
+cd cashback_verde
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -53,16 +46,16 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-Teste básico:
+Validacoes comuns:
 
 ```bash
-python manage.py test
 python manage.py check
+python manage.py test
 ```
 
-## Variáveis de ambiente esperadas
+## Variaveis de ambiente
 
-O projeto usa `python-decouple` e espera valores como:
+O projeto usa `python-decouple` e espera, no minimo:
 
 - `SECRET_KEY`
 - `DEBUG`
@@ -72,97 +65,133 @@ O projeto usa `python-decouple` e espera valores como:
 - `DB_HOST`
 - `DB_PORT`
 
-Existe um arquivo `cashback_verde/.env` no workspace, mas agentes não devem copiar segredos para respostas nem reescrevê-los sem necessidade explícita.
+Existe `.env` local no workspace. Nao exponha segredos em respostas, logs, commits ou documentacao.
 
-## Observações importantes antes de editar
+## Estado funcional atual
 
-### 1. Há trabalho local em andamento
+Ja existe:
 
-O worktree já possui alterações não commitadas e arquivos novos. Antes de editar, rode `git status --short` e preserve qualquer mudança existente que não faça parte da sua tarefa.
+- usuario customizado `accounts.User` com `role` (`buyer` ou `seller`) e `cashback_balance`;
+- cadastro com email unico e escolha de perfil;
+- login usando `django.contrib.auth.views.LoginView` com formulario customizado;
+- pagina de perfil em `accounts/profile.html`;
+- vendedores veem seus proprios anuncios no perfil;
+- CRUD de anuncios para vendedores: criar, editar e remover;
+- listagem e detalhe de anuncios;
+- filtros de anuncios por tipo, categoria e cidade;
+- campos de anuncio: nome, descricao, preco, imagem, tipo, categoria, cidade e percentual de cashback;
+- carrinho em sessao para compradores;
+- adicionar, atualizar quantidade e remover itens do carrinho;
+- checkout transacional;
+- uso opcional do saldo de cashback no checkout;
+- geracao automatica de cashback apos compra concluida.
 
-### 2. O settings atual tem efeito colateral no import
+## Regras de dominio importantes
 
-`cashback_verde/cashback_verde/settings.py` faz `print(config('DB_NAME'))` durante o import. Isso significa que comandos Django podem vazar esse valor no terminal. Se sua tarefa tocar configuração, trate isso como débito técnico relevante.
+- Compradores (`buyer`) podem acessar carrinho, adicionar itens e finalizar compras.
+- Vendedores (`seller`) podem cadastrar anuncios e editar/remover somente anuncios proprios.
+- `Product.seller` e opcional no banco por historico de migracoes, mas novas criacoes pela view atribuem o vendedor autenticado.
+- `Product.cashback_percentage` aceita valores de `0` a `100`.
+- `Product.cashback_amount` calcula o cashback estimado para uma unidade.
+- `Order.total` armazena o total final apos eventual uso de cashback.
+- `Order.cashback_used` armazena quanto cashback foi abatido na compra.
+- `OrderItem.price` copia o preco do produto no momento da compra.
+- `cashback.services.generate_cashback(order)` cria o registro em `Cashback` e soma ao saldo do usuario.
 
-### 3. Banco configurado para PostgreSQL
+## URLs principais
 
-Embora exista `cashback_verde/db.sqlite3`, o `settings.py` atual usa PostgreSQL, não SQLite. Não assuma que o SQLite é o banco ativo.
+- `/`: home (`home`)
+- `/produtos/`: listagem (`product_list`)
+- `/produtos/novo/`: criar anuncio (`product_create`)
+- `/produtos/<pk>/`: detalhe (`product_detail`)
+- `/produtos/<pk>/editar/`: editar anuncio (`product_update`)
+- `/produtos/<pk>/remover/`: remover anuncio (`product_delete`)
+- `/carrinho/`: carrinho (`cart_detail`)
+- `/carrinho/adicionar/<product_id>/`: adicionar item (`add_to_cart`)
+- `/carrinho/atualizar/<product_id>/`: atualizar quantidade (`update_cart_item`)
+- `/carrinho/remover/<product_id>/`: remover item (`remove_from_cart`)
+- `/carrinho/finalizar/`: checkout (`checkout`)
+- `/accounts/register/`: cadastro (`register`)
+- `/accounts/login/`: login (`login`)
+- `/accounts/perfil/`: perfil (`profile`)
 
-### 4. Testes ainda são mínimos
+## Pontos de atencao tecnica
 
-Os arquivos `tests.py` dos apps estão praticamente vazios. Ao implementar funcionalidade nova, prefira adicionar testes do comportamento alterado em vez de confiar apenas em inspeção manual.
-
-## Convenções de código observadas
-
-- idioma misto: nomes de apps e código em inglês, textos de interface em português
-- views baseadas em função
-- templates renderizados no servidor
-- usuário customizado em `accounts.User`
-- papel do usuário controlado por `role` com valores `buyer` e `seller`
-
-Ao contribuir:
-
-- mantenha consistência com o padrão Django já usado
-- preserve nomes de rotas existentes
-- evite introduzir camadas desnecessárias para mudanças simples
-- centralize regras de domínio reutilizáveis em serviços quando fizer sentido, como já ocorre em `cashback/services.py`
+- Sempre rode `git status --short` antes de editar. O repositorio pode ter alteracoes locais do usuario.
+- O arquivo antigo foi preservado como `bckpAGENTS.md`; este `AGENTS.md` e a referencia atual.
+- `settings.py` ainda faz `print(config('DB_NAME'))` durante import. Isso pode vazar o nome do banco no terminal e deve ser tratado como debito tecnico se a tarefa tocar configuracao.
+- O banco configurado e PostgreSQL. Mesmo que exista `db.sqlite3`, nao assuma SQLite como banco ativo.
+- `STATICFILES_DIRS` aponta para `BASE_DIR / 'cashback_verde' / 'static'`, que hoje corresponde a `cashback_verde/cashback_verde/static`.
+- Templates usam Bootstrap via CDN; mudancas visuais devem seguir esse padrao salvo pedido explicito.
+- Testes ainda sao minimos nos apps. Para novas regras, adicione testes focados no comportamento alterado.
 
 ## Fluxo recomendado para agentes
 
-1. Ler `git status --short` para detectar mudanças locais.
-2. Entrar em `cashback_verde/`.
-3. Ler os arquivos diretamente relacionados à tarefa antes de propor mudanças.
-4. Verificar impacto em templates, urls, models, views e migrations.
-5. Se alterar models, criar/ajustar migrations.
-6. Rodar a menor validação útil possível (`check`, testes do app afetado, ou `test` completo).
-7. Informar com clareza o que foi alterado e o que não pôde ser validado.
+1. Rode `git status --short`.
+2. Entre em `cashback_verde/` para comandos Django.
+3. Leia models, views, forms, urls e templates relacionados antes de editar.
+4. Se alterar models, crie/ajuste migrations.
+5. Preserve alteracoes locais que nao sejam suas.
+6. Rode a menor validacao util: `python manage.py check`, teste do app afetado ou suite completa.
+7. Informe o que mudou, os arquivos principais e qualquer bloqueio de ambiente.
 
-## Áreas com maior chance de impacto cruzado
+## Tarefas comuns
 
-- alterações em `accounts.User` afetam autenticação, permissões e relações com `Product`, `Order` e `Cashback`
-- alterações em `products.models.Product` afetam listagem, detalhe, admin e possíveis pedidos
-- mudanças em `cashback/services.py` afetam saldo do usuário e geração de registros financeiros
-- mudanças em `cashback_verde/urls.py` e `templates/base.html` afetam navegação global
+### Produtos e servicos
 
-## Checklist para tarefas comuns
+- Verifique `products/models.py`, `products/forms.py`, `products/views.py`, `products/urls.py`.
+- Atualize templates em `templates/products/`.
+- Preserve permissoes de vendedor e propriedade do anuncio.
+- Se mexer em imagem, valide `MEDIA_URL`/`MEDIA_ROOT`.
 
-### Nova funcionalidade em produto
+### Autenticacao e perfil
 
-- ajustar model/view/template/url conforme necessário
-- validar acesso de vendedor vs comprador
-- verificar upload de imagem se houver alteração no campo `image`
+- Verifique `accounts/models.py`, `accounts/forms.py`, `accounts/views.py`, `accounts/urls.py`.
+- Login e logout passam tambem por `django.contrib.auth.urls`.
+- Mantenha consistencia entre `role`, menu global e permissoes das views.
 
-### Autenticação e cadastro
+### Carrinho e checkout
 
-- revisar `accounts/forms.py`, `accounts/views.py`, `accounts/urls.py`
-- garantir integração com `django.contrib.auth.urls`
-- validar redirecionamentos após login/cadastro
+- Verifique `orders/views.py`, `orders/models.py`, `orders/urls.py` e `templates/orders/cart.html`.
+- O carrinho fica na sessao sob a chave `cart`.
+- Compradores apenas; vendedores recebem `HttpResponseForbidden`.
+- Operacoes de checkout usam `transaction.atomic()` e bloqueiam o usuario com `select_for_update()`.
+- Evite duplicar regras financeiras fora dos helpers/servicos existentes.
 
-### Cashback e pedidos
+### Cashback
 
-- revisar tipos numéricos e consistência de saldo
-- evitar lógica financeira duplicada em views
-- considerar atomicidade se a tarefa envolver gravações múltiplas
+- Verifique `cashback/models.py` e `cashback/services.py`.
+- Mantenha calculos com `Decimal`.
+- Considere atomicidade quando alterar saldo ou registros financeiros.
+- Se adicionar historico visivel, provavelmente envolvera perfil, templates e consulta de `Cashback`.
+
+## Backlog funcional provavel
+
+Com base no codigo atual, ainda parecem pendentes ou incompletos:
+
+- historico de pedidos para comprador;
+- historico de cashback no perfil;
+- pagina de confirmacao/detalhe do pedido apos checkout;
+- testes funcionais dos fluxos principais;
+- melhorias de administracao para `Cashback` e possivelmente pedidos;
+- remocao do `print(config('DB_NAME'))` em `settings.py`.
+
+Confirme sempre no codigo antes de assumir que um item do backlog ainda esta aberto.
 
 ## O que evitar
 
-- não sobrescrever mudanças locais do usuário
-- não assumir que README documenta o projeto; o `README.md` atual praticamente não contém conteúdo
-- não assumir cobertura de testes existente
-- não expor valores de `.env` em logs, commits ou respostas
-- não trocar para SQLite sem solicitação explícita
+- Nao sobrescreva alteracoes locais do usuario.
+- Nao exponha conteudo de `.env`.
+- Nao troque PostgreSQL por SQLite sem pedido explicito.
+- Nao mova o projeto Django para a raiz.
+- Nao introduza APIs, frontend SPA ou bibliotecas novas sem necessidade real.
+- Nao altere regras de saldo/cashback sem testes ou validacao cuidadosa.
 
-## Estado atual verificado nesta análise
+## Ao finalizar uma tarefa
 
-- a estrutura Django está presente e coerente
-- `python manage.py check` não pôde ser executado no ambiente atual porque o Python ativo não possui Django instalado
-- há arquivos e edições locais ainda não commitados
+Inclua na resposta:
 
-## Saída esperada de futuros agentes
-
-Ao finalizar uma tarefa neste projeto:
-
-- descreva o que mudou
-- cite arquivos principais afetados
-- informe como validou
-- deixe explícito qualquer bloqueio de ambiente, banco ou dependência
+- resumo objetivo do que mudou;
+- arquivos principais afetados;
+- validacao executada;
+- bloqueios ou riscos restantes, se houver.
